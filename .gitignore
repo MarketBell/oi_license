@@ -1,0 +1,11 @@
+node_modules/
+# Any env / credentials file (real secrets) — NEVER commit. Keep only .env.example.
+*.env
+.env
+.env.*
+!.env.example
+atlas-credentials.env
+credentials*
+.vercel
+*.log
+.DS_Store
