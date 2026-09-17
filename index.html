@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>OI Pulse — Admin</title>
+<style>
+  :root{
+    --navy:#0f1b3d; --navy2:#17306b; --gold:#b8860b; --gold-l:#e7c66b;
+    --bg:#f4f6fb; --card:#ffffff; --line:#e3e6ef; --ink:#1a2233; --muted:#6b7488;
+    --ok:#1f9d5b; --warn:#c78a12; --bad:#c0392b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+  a{color:var(--gold);text-decoration:none}
+  header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+  header .brand{font-weight:700;font-size:16px}
+  header .brand span{color:var(--gold-l)}
+  header .who{font-size:12px;color:#c7cde0}
+  header button{background:transparent;border:1px solid #ffffff44;color:#fff;padding:5px 12px;border-radius:7px;cursor:pointer;font-size:12px}
+  .wrap{max-width:1040px;margin:0 auto;padding:20px}
+  .tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+  .tabs button{background:#fff;border:1px solid var(--line);padding:9px 16px;border-radius:9px;cursor:pointer;font-weight:600;color:var(--muted)}
+  .tabs button.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+  h2{margin:0 0 14px;font-size:16px;color:var(--navy)}
+  label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px}
+  input,select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit}
+  .btn{background:var(--gold);color:#241b02;border:none;padding:10px 16px;border-radius:9px;font-weight:700;cursor:pointer;font-size:14px}
+  .btn:hover{background:var(--gold-l)}
+  .btn.sm{padding:5px 10px;font-size:12px;border-radius:7px}
+  .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--navy2);font-weight:600}
+  .btn.danger{background:#fff;border:1px solid #e2b6b0;color:var(--bad);font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+  .pill.pending{background:#fdf3d9;color:#8a5a00}
+  .pill.verified{background:#dff3e6;color:#1f7a45}
+  .pill.contacted{background:#e0ecff;color:#1c4fb0}
+  .pill.shipped{background:#e6e0ff;color:#5333b0}
+  .pill.rejected{background:#fbe3df;color:#a52c1c}
+  .pill.active{background:#dff3e6;color:#1f7a45}
+  .pill.revoked,.pill.suspended{background:#fbe3df;color:#a52c1c}
+  .muted{color:var(--muted)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .row>div{flex:1;min-width:180px}
+  .keybox{background:#0f1b3d;color:#fff;padding:14px;border-radius:10px;font-family:Consolas,monospace;font-size:18px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+  .note{background:#fbf6e7;border-left:4px solid var(--gold-l);padding:9px 12px;border-radius:6px;color:#5b4a12;font-size:12px;margin-top:10px}
+  .hidden{display:none}
+  /* login */
+  #gate{max-width:380px;margin:8vh auto;text-align:center}
+  #gate .card{padding:26px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:9px;font-size:13px;opacity:0;transition:.25s;pointer-events:none}
+  .toast.show{opacity:1}
+  /* modal */
+  .modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .modal .box{background:#fff;border-radius:12px;max-width:820px;width:100%;max-height:90vh;overflow:auto;padding:18px}
+  .modal img{max-width:100%;border:1px solid var(--line);border-radius:8px}
+  .modal .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="gate">
+  <div class="card">
+    <div style="font-size:20px;font-weight:700;color:var(--navy)">OI Pulse <span style="color:var(--gold)">Admin</span></div>
+    <p class="muted" style="font-size:13px">Billionit Wealth — internal</p>
+    <label style="text-align:left">Admin secret</label>
+    <input id="secret" type="password" placeholder="Paste your admin secret" onkeydown="if(event.key==='Enter')login()">
+    <label style="text-align:left;display:flex;gap:6px;align-items:center;margin-top:10px;font-weight:400">
+      <input type="checkbox" id="remember" style="width:auto" checked> Remember on this device
+    </label>
+    <button class="btn" style="width:100%;margin-top:14px" onclick="login()">Sign in</button>
+    <p id="gateErr" class="muted" style="color:var(--bad);font-size:12px;min-height:16px"></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <header>
+    <div class="brand">OI Pulse <span>Admin</span></div>
+    <div><span class="who">Billionit Wealth</span> &nbsp; <button onclick="logout()">Sign out</button></div>
+  </header>
+  <div class="wrap">
+    <div class="tabs">
+      <button id="tab-purchases" class="active" onclick="showTab('purchases')">🧾 Purchases</button>
+      <button id="tab-issue" onclick="showTab('issue')">🔑 Issue license</button>
+      <button id="tab-licenses" onclick="showTab('licenses')">📋 Licenses</button>
+    </div>
+
+    <!-- PURCHASES -->
+    <div id="view-purchases">
+      <div class="card">
+        <h2>Purchases <button class="btn sm ghost" style="float:right" onclick="loadPurchases()">↻ Refresh</button></h2>
+        <p class="muted" style="font-size:12.5px;margin-top:-6px">
+          Verify each payment in your <b>Razorpay dashboard/email</b> first, then view the receipt,
+          mark it <b>Verified</b>, contact the buyer, and issue their key.
+        </p>
+        <div id="purchasesBody"><p class="muted">Loading…</p></div>
+      </div>
+    </div>
+
+    <!-- ISSUE -->
+    <div id="view-issue" class="hidden">
+      <div class="card">
+        <h2>Generate a license key</h2>
+        <p class="muted" style="font-size:12.5px;margin-top:-6px">One license = one Zerodha account. The buyer's account binds on first activation.</p>
+        <div class="row">
+          <div><label>Buyer name</label><input id="i_name" placeholder="Optional"></div>
+          <div><label>Buyer email</label><input id="i_email" placeholder="Optional"></div>
+          <div><label>Buyer mobile</label><input id="i_mobile" placeholder="Optional"></div>
+        </div>
+        <button class="btn" style="margin-top:14px" onclick="issueKey()">Generate key</button>
+        <div id="issueResult"></div>
+      </div>
+    </div>
+
+    <!-- LICENSES -->
+    <div id="view-licenses" class="hidden">
+      <div class="card">
+        <h2>Issued licenses <button class="btn sm ghost" style="float:right" onclick="loadLicenses()">↻ Refresh</button></h2>
+        <div id="licensesBody"><p class="muted">Loading…</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const LS='oi_admin_secret';
+let SECRET=null;
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmtDate(d){if(!d)return '';try{return new Date(d).toLocaleString();}catch{return String(d);}}
+
+async function api(path,opts={}){
+  const r=await fetch(path,{...opts,headers:{'Content-Type':'application/json','x-admin-secret':SECRET,...(opts.headers||{})}});
+  const j=await r.json().catch(()=>({ok:false,error:'Bad response'}));
+  if(r.status===401){logout();throw new Error('Unauthorized');}
+  return j;
+}
+
+// ---- auth ----
+function login(){
+  const s=document.getElementById('secret').value.trim();
+  if(!s){document.getElementById('gateErr').textContent='Enter the secret.';return;}
+  SECRET=s;
+  // verify against a lightweight admin call
+  api('/api/licenses').then(j=>{
+    if(j.ok){
+      if(document.getElementById('remember').checked){try{localStorage.setItem(LS,s);}catch{}}
+      document.getElementById('gate').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      loadPurchases();
+    }else{document.getElementById('gateErr').textContent=j.error||'Wrong secret.';SECRET=null;}
+  }).catch(()=>{document.getElementById('gateErr').textContent='Wrong secret.';SECRET=null;});
+}
+function logout(){SECRET=null;try{localStorage.removeItem(LS);}catch{}document.getElementById('app').classList.add('hidden');document.getElementById('gate').classList.remove('hidden');document.getElementById('secret').value='';}
+
+function showTab(t){
+  ['purchases','issue','licenses'].forEach(x=>{
+    document.getElementById('view-'+x).classList.toggle('hidden',x!==t);
+    document.getElementById('tab-'+x).classList.toggle('active',x===t);
+  });
+  if(t==='licenses')loadLicenses();
+  if(t==='purchases')loadPurchases();
+}
+
+// ---- purchases ----
+async function loadPurchases(){
+  const el=document.getElementById('purchasesBody');
+  el.innerHTML='<p class="muted">Loading…</p>';
+  const j=await api('/api/purchases');
+  if(!j.ok){el.innerHTML='<p class="muted">'+esc(j.error)+'</p>';return;}
+  if(!j.purchases.length){el.innerHTML='<p class="muted">No purchases yet.</p>';return;}
+  let h='<table><tr><th>Date</th><th>Name</th><th>Contact</th><th>Receipt</th><th>Status</th><th>Actions</th></tr>';
+  for(const p of j.purchases){
+    h+='<tr>'+
+      '<td class="muted">'+esc(fmtDate(p.created_at))+'</td>'+
+      '<td><b>'+esc(p.name)+'</b></td>'+
+      '<td>'+esc(p.email)+'<br><span class="muted">'+esc(p.mobile)+'</span></td>'+
+      '<td><button class="btn sm ghost" onclick="viewReceipt(\''+p.id+'\')">View</button></td>'+
+      '<td><span class="pill '+esc(p.status)+'">'+esc(p.status)+'</span></td>'+
+      '<td class="actions">'+
+        '<button class="btn sm" onclick="setStatus(\''+p.id+'\',\'verified\')">Verified</button>'+
+        '<button class="btn sm ghost" onclick="setStatus(\''+p.id+'\',\'contacted\')">Contacted</button>'+
+        '<button class="btn sm ghost" onclick="issueFor(\''+encodeURIComponent(p.name)+'\',\''+encodeURIComponent(p.email)+'\',\''+encodeURIComponent(p.mobile)+'\')">Issue key</button>'+
+        '<button class="btn sm danger" onclick="setStatus(\''+p.id+'\',\'rejected\')">Reject</button>'+
+      '</td></tr>';
+  }
+  h+='</table>';
+  el.innerHTML=h;
+}
+async function setStatus(id,status){
+  const j=await api('/api/purchases',{method:'POST',body:JSON.stringify({id,status})});
+  if(j.ok){toast('Marked '+status);loadPurchases();}else{toast(j.error||'Failed');}
+}
+async function viewReceipt(id){
+  toast('Loading receipt…');
+  const j=await api('/api/purchases?id='+encodeURIComponent(id));
+  if(!j.ok||!j.purchase.proof){toast('No receipt');return;}
+  const p=j.purchase;
+  const isPdf=(p.contentType||'').includes('pdf');
+  const body=isPdf
+    ? '<embed src="'+p.proof+'" type="application/pdf" style="width:100%;height:70vh;border:1px solid #e3e6ef;border-radius:8px">'
+    : '<img src="'+p.proof+'" alt="receipt">';
+  document.getElementById('modal').innerHTML=
+    '<div class="modal" onclick="if(event.target===this)closeModal()"><div class="box">'+
+      '<div class="head"><b>'+esc(p.name)+' — payment receipt</b>'+
+      '<div class="actions"><a class="btn sm ghost" href="'+p.proof+'" download="'+esc(p.filename||'receipt')+'">Download</a>'+
+      '<button class="btn sm ghost" onclick="closeModal()">Close</button></div></div>'+
+      '<p class="muted" style="font-size:12px;margin-top:0">'+esc(p.email)+' · '+esc(p.mobile)+' · '+esc(p.filename)+'</p>'+
+      body+
+    '</div></div>';
+}
+function closeModal(){document.getElementById('modal').innerHTML='';}
+function issueFor(n,e,m){
+  showTab('issue');
+  document.getElementById('i_name').value=decodeURIComponent(n);
+  document.getElementById('i_email').value=decodeURIComponent(e);
+  document.getElementById('i_mobile').value=decodeURIComponent(m);
+  toast('Buyer details filled — click Generate key');
+}
+
+// ---- issue ----
+async function issueKey(){
+  const body={buyer_name:document.getElementById('i_name').value.trim(),buyer_email:document.getElementById('i_email').value.trim(),buyer_mobile:document.getElementById('i_mobile').value.trim()};
+  const j=await api('/api/issue',{method:'POST',body:JSON.stringify(body)});
+  const el=document.getElementById('issueResult');
+  if(!j.ok){el.innerHTML='<p class="muted" style="color:#c0392b">'+esc(j.error)+'</p>';return;}
+  el.innerHTML='<div class="keybox"><span id="thekey">'+esc(j.license_key)+'</span>'+
+    '<button class="btn sm" onclick="copyKey()">Copy</button></div>'+
+    '<div class="note">Send this key to the buyer. It will bind to their Zerodha account on first activation. One license = one account.</div>';
+}
+function copyKey(){const k=document.getElementById('thekey').textContent;navigator.clipboard.writeText(k).then(()=>toast('Key copied')).catch(()=>toast(k));}
+
+// ---- licenses ----
+async function loadLicenses(){
+  const el=document.getElementById('licensesBody');
+  el.innerHTML='<p class="muted">Loading…</p>';
+  const j=await api('/api/licenses');
+  if(!j.ok){el.innerHTML='<p class="muted">'+esc(j.error)+'</p>';return;}
+  if(!j.licenses.length){el.innerHTML='<p class="muted">No licenses issued yet.</p>';return;}
+  let h='<table><tr><th>Key</th><th>Buyer</th><th>Bound account</th><th>Status</th><th>Created</th><th>Actions</th></tr>';
+  for(const l of j.licenses){
+    h+='<tr>'+
+      '<td style="font-family:Consolas,monospace">'+esc(l.key)+'</td>'+
+      '<td>'+esc(l.buyer_name||'—')+'<br><span class="muted">'+esc(l.buyer_email||'')+'</span></td>'+
+      '<td>'+(l.account_id?('<b>'+esc(l.account_id)+'</b>'):'<span class="muted">not activated</span>')+'</td>'+
+      '<td><span class="pill '+esc(l.status)+'">'+esc(l.status)+'</span></td>'+
+      '<td class="muted">'+esc(fmtDate(l.created_at))+'</td>'+
+      '<td class="actions">'+
+        (l.status==='active'
+          ? '<button class="btn sm danger" onclick="revoke(\''+esc(l.key)+'\',\'revoked\')">Revoke</button>'
+          : '<button class="btn sm" onclick="revoke(\''+esc(l.key)+'\',\'active\')">Re-enable</button>')+
+        '<button class="btn sm ghost" onclick="resetAccount(\''+esc(l.key)+'\')">Unbind account</button>'+
+      '</td></tr>';
+  }
+  h+='</table>';
+  el.innerHTML=h;
+}
+async function revoke(key,status){
+  const j=await api('/api/revoke',{method:'POST',body:JSON.stringify({license_key:key,status})});
+  if(j.ok){toast(status==='active'?'Re-enabled':'Revoked');loadLicenses();}else{toast(j.error||'Failed');}
+}
+async function resetAccount(key){
+  if(!confirm('Unbind the Zerodha account from '+key+'? The next activation (any account) will bind it fresh.'))return;
+  const j=await api('/api/revoke',{method:'POST',body:JSON.stringify({license_key:key,status:'active',reset_account:true})});
+  if(j.ok){toast('Account unbound');loadLicenses();}else{toast(j.error||'Failed');}
+}
+
+// ---- boot ----
+(function(){try{const s=localStorage.getItem(LS);if(s){document.getElementById('secret').value=s;login();}}catch{}})();
+</script>
+</body>
+</html>

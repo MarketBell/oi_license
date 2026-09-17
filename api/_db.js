@@ -27,3 +27,9 @@ export async function licenses() {
   await col.createIndex({ key: 1 }, { unique: true }).catch(() => {});
   return col;
 }
+
+// Purchases submitted from the billionit /oi page (same database, written by the website).
+export async function purchases() {
+  const db = await getDb();
+  return db.collection('oi_purchases');
+}
